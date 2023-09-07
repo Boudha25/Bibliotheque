@@ -4,13 +4,11 @@
 
 import json
 import sqlite3
-import tkinter
 import tkinter as tk
 import urllib.request
 from BaseDeDonnee import Database
 from datetime import date
-from PIL import Image, ImageTk
-from sqlite3 import Error
+from PIL import ImageTk
 from tkinter import ttk
 from tkinter.messagebox import showinfo
 from tkinter import messagebox
@@ -22,6 +20,9 @@ class MenuBar(tk.Menu, Database):
         tk.Menu.__init__(self, parent)
 
         # Variable pour la base de donnée.
+        self.date_emprunt = None
+        self.date_retour = None
+        self.id_eleve = tk.IntVar()
         self.id_livre = tk.IntVar()
         self.isbn = tk.IntVar()
         self.titre = tk.StringVar()
@@ -90,7 +91,7 @@ class MenuBar(tk.Menu, Database):
         self.fenetre4 = None
         self.duree_emprunt = tk.IntVar()
         self.label_duree_emprunt = None
-        self.nb_jour_emprunt = None
+        self.nb_jour_emprunt = tk.Entry()
         self.fermer_fenetre = None
 
         # Création et assignation des variables de la fenêtre6.
@@ -294,7 +295,7 @@ class MenuBar(tk.Menu, Database):
         self.dateInscription = self.aujourdhui.strftime("%Y-%m-%d")
         self.status = 0  # Met le livre disponible.
         return self.titre, self.resume, self.auteur, self.nbPage, self.langage, self.url, \
-               self.dateInscription, self.status, self.provenance_variable
+            self.dateInscription, self.status, self.provenance_variable
 
     def variable_automatique(self):
         # Utilisation de la base de donnée Google Book.
@@ -356,7 +357,7 @@ class MenuBar(tk.Menu, Database):
             self.dateInscription = self.aujourdhui.strftime("%Y-%m-%d")
             self.status = 0  # Met le livre disponible.
             return self.titre, self.resume, self.auteur, self.nbPage, self.langage, \
-                   self.url, self.dateInscription, self.status, self.provenance_variable
+                self.url, self.dateInscription, self.status, self.provenance_variable
 
     def set_label(self, _event=None):
         # Méthode qui change le message lorsqu'on clique dans le champ info titre.
@@ -477,7 +478,7 @@ class MenuBar(tk.Menu, Database):
         self.fermer_fenetre.grid(row=2, column=1)
 
     def quit(self):
-        tk.sys.exit(0)
+        quit()
 
     # Fenetre À propos.
     @staticmethod

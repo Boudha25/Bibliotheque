@@ -36,7 +36,7 @@ class Database:
 
     def rechercher_un_element(self, where, objet):
         # Execute la requête SQL
-        element_recherche = ('%' + objet + '%')  # permet de rechercher des mot contenant le prenom.
+        element_recherche = ('%' + objet + '%')  # permet de rechercher des mots contenant.
         sql = """SELECT id_livre, ISBN, Titre, Auteur, Status, NbPage FROM livre
                           WHERE %s LIKE "%s"
                           ORDER BY id_livre DESC

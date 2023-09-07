@@ -7,7 +7,6 @@
 ##############################
 
 import datetime
-import sqlite3
 import tkinter as tk
 from tkinter import *
 from BaseDeDonnee import Database
@@ -254,13 +253,11 @@ class Application(tk.Tk, Database):
         isbn = isbn_a_valider
         date_emprunt = datetime.date.today()
 
-        ##########   Test   ##############
-        self.label_info_message.set(self.duree_default.duree_emprunt.get())
-        print(self.label_info_message.get())
-        ##########   Test   ##############
-
         # Récupération de l'attribut de la classe MenuBar.
-        nb_jour = self.duree_default.duree_emprunt.get()
+#        nb_jour = self.trouve_duree_emprunt()
+#        nb_jour = self.duree_default.duree_emprunt.get()
+        nb_jour = 40
+        self.trouve_duree_emprunt()
         print("Nombre de jour:", nb_jour)
         if nb_jour == 0:
             nb_jour = 40
@@ -282,6 +279,18 @@ class Application(tk.Tk, Database):
                     self.no_classe.delete(0, END)
                     self.scan_isbn.focus_set()  # met le curseur dans le champ scan_isbn.
                     self.after(5000, self.clear_champs)
+
+    def trouve_duree_emprunt(self):
+
+        try:
+            duree = self.duree_default.duree_emprunt.get()
+            duree = int(duree)
+            print(type(duree))
+            print("Durée:", duree)
+            return duree
+
+        except ValueError as e:
+            print(e)
 
     def rendre(self):
         # Méthode pour rendre un livre.
