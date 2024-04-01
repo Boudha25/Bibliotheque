@@ -589,14 +589,19 @@ class MenuBar(tk.Menu, Database):
         # grab values to sort
         data = [(listBox.set(child, col), child)
                 for child in listBox.get_children('')]
-        # if the data to be sorted is numeric change to float
-        # data =  change_numeric(data)
-        # now sort the data in place
-        data.sort(reverse=descending)
+
+        # Check if the data is numeric, change to float if necessary
+        if all(value.replace('.', '', 1).isdigit() for value, _ in data):
+            data.sort(key=lambda x: float(x[0]), reverse=descending)
+        else:
+            data.sort(reverse=descending)
+
+        # Now sort the data in place
         for ix, item in enumerate(data):
-            self.listBox.move(item[1], '', ix)
-        # switch the heading, so it will sort in the opposite direction
-        self.listBox.heading(col, command=lambda col=col: self.sortby(listBox, col, int(not descending)))
+            listBox.move(item[1], '', ix)
+
+        # Switch the heading, so it will sort in the opposite direction
+        listBox.heading(col, command=lambda col=col: self.sortby(listBox, col, int(not descending)))
 
     def liste_livres(self):
         # Affiche la liste de tous les livres de la Bd dans la fenêtre3.

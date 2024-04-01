@@ -254,8 +254,6 @@ class Application(tk.Tk, Database):
         date_emprunt = datetime.date.today()
 
         # Récupération de l'attribut de la classe MenuBar.
-#        nb_jour = self.trouve_duree_emprunt()
-#42        nb_jour = self.duree_default.duree_emprunt.get()
         nb_jour = self.trouve_duree_emprunt()
         print("Nombre de jour:", nb_jour)
         if nb_jour == 0:
