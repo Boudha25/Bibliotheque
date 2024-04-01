@@ -27,9 +27,6 @@ class Application(tk.Tk, Database):
         self.title("Gestion bibliothèque")
         self.state('zoomed')
 
-        # Utilisation de l'attribut durée d'emprunt d'un livre de la classe MenuBar.
-        self.duree_default = MenuBar(self)
-
         # image dans un canvas
         self.logo = PhotoImage(file="girl_book.png")
         self.zone_dessin = Canvas(self, width=1366, height=650, bg='white', bd=2, relief="ridge")
@@ -255,10 +252,6 @@ class Application(tk.Tk, Database):
 
         # Récupération de l'attribut de la classe MenuBar.
         nb_jour = self.trouve_duree_emprunt()
-        print("Nombre de jour:", nb_jour)
-        if nb_jour == 0:
-            nb_jour = 40
-            print("Nombre de jour mis a 40:", nb_jour)
         date_retour = date_emprunt + datetime.timedelta(days=nb_jour)
 
         # Si le livre est disponible, on ajoute l'emprunt dans la BD.
@@ -276,18 +269,6 @@ class Application(tk.Tk, Database):
                     self.no_classe.delete(0, END)
                     self.scan_isbn.focus_set()  # met le curseur dans le champ scan_isbn.
                     self.after(5000, self.clear_champs)
-
-    def trouve_duree_emprunt(self):
-
-        try:
-            duree = self.duree_default.duree_emprunt.get()
-            duree = int(duree)
-            print(type(duree))
-            print("Durée:", duree)
-            return duree
-
-        except ValueError as e:
-            print(e)
 
     def rendre(self):
         # Méthode pour rendre un livre.
@@ -317,6 +298,22 @@ class Application(tk.Tk, Database):
         self.no_classe.delete(0, END)
         # met le curseur dans le Entry.
         self.scan_isbn.focus_set()
+
+    @staticmethod
+    def trouve_duree_emprunt():
+        # Charge la valeur sauvegardée dans un fichier texte appelé "configuration.txt" lors du démarrage du programme.
+        try:
+            with open("configuration.txt", "r") as f:
+                duree = (f.read().strip())
+                duree_en_jour = int(duree)
+                return duree_en_jour
+        except FileNotFoundError:
+            # Si le fichier de configuration n'existe pas, initialise la valeur par défaut
+            duree_en_jour = 40
+            return duree_en_jour
+
+        except ValueError as e:
+            print(e)
 
 
 if __name__ == "__main__":
