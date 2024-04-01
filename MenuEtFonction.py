@@ -91,7 +91,7 @@ class MenuBar(tk.Menu, Database):
 
         # Création et assignation des variables de la fenêtre4 configuration.
         self.fenetre4 = None
-        self.duree_emprunt = tk.IntVar()
+        self.duree_emprunt = tk.StringVar()
         self.label_duree_emprunt = None
         self.nb_jour_emprunt = tk.Entry()
         self.fermer_fenetre = None
@@ -447,6 +447,7 @@ class MenuBar(tk.Menu, Database):
             messagebox.showwarning('Erreur', 'Erreur! Recommencez')
 
     def configuration(self):
+        self.load_configuration()
         # creation de la fenêtre secondaire pour afficher les variables de configuration.
         self.fenetre4 = tk.Toplevel(self)
         self.fenetre4.geometry("500x500")
@@ -472,12 +473,44 @@ class MenuBar(tk.Menu, Database):
                                         text="Fermer la\nfenêtre",
                                         font='Arial 15  bold',
                                         width=13,
-                                        command=self.fenetre4.destroy,
+                                        command=self.fermer_fenetre_click,
                                         bg='white')
         # Affichage des éléments.
         self.nb_jour_emprunt.grid(row=1, column=1)
         self.label_duree_emprunt.grid(row=0, columnspan=3)
         self.fermer_fenetre.grid(row=2, column=1)
+
+        # Configuration de la validation du champ Entry
+        self.nb_jour_emprunt.config(validate="key")
+        self.nb_jour_emprunt.config(validatecommand=(self.register(self.validate_entry), '%P'))
+
+    def validate_entry(self, value):
+        # Vérifie si la valeur entrée dans le champ self.nb_jour_emprunt = tk.Entry() est un nombre.
+        if value.isdigit():
+            return True
+        else:
+            # Affiche un message d'erreur si la valeur n'est pas un nombre.
+            messagebox.showwarning('Erreur', 'Veuillez entrer un nombre.', parent=self.fenetre4)
+            return False
+
+    def load_configuration(self):
+        # Charge la valeur sauvegardée dans un fichier texte appelé "configuration.txt" lors du démarrage du programme.
+        try:
+            with open("configuration.txt", "r") as f:
+                self.duree_emprunt.set(f.read().strip())
+        except FileNotFoundError:
+            # Si le fichier de configuration n'existe pas, initialise la valeur par défaut
+            self.duree_emprunt.set("40")
+        return self.duree_emprunt
+
+    def save_configuration(self):
+        # Sauvegarde la valeur actuelle dans ce fichier chaque fois que l'utilisateur ferme la fenêtre de configuration.
+        with open("configuration.txt", "w") as f:
+            f.write(self.duree_emprunt.get())
+
+    def fermer_fenetre_click(self):
+        self.save_configuration()
+        self.fenetre4.destroy()
 
     def quit(self):
         quit()
