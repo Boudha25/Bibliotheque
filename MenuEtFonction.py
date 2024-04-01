@@ -33,6 +33,8 @@ class MenuBar(tk.Menu, Database):
         self.url = tk.StringVar()
         self.dateInscription = tk.StringVar()
         self.status = tk.IntVar()
+
+        # Attribut servant à la base de donnée.
         self.conn = sqlite3.connect('biblio.db', detect_types=sqlite3.PARSE_DECLTYPES)
         self.cur = self.conn.cursor()
 
