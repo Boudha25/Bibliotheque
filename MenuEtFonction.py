@@ -514,6 +514,7 @@ class MenuBar(tk.Menu, Database):
 
     def quit(self):
         quit()
+        self.fenetre.destroy()
 
     # Fenetre À propos.
     @staticmethod
@@ -527,7 +528,7 @@ class MenuBar(tk.Menu, Database):
                          "Vous pouvez ensuite savoir qui possède chaque livre.\n"
                          "Vous pouvez savoir quel livre est le plus populaire.\n\n"
 
-                         "Auteur: Stéphane April. Version 2.0\n"
+                         "Auteur: Stéphane April. Version 2.1\n"
                          "2023")
 
     def liste(self):
