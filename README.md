@@ -7,7 +7,7 @@ Gestionnaire de bibliothèque pour une classe.
 - Plusieurs statistiques disponibles.
 
 ## How to use
-Vous devez configurer le lecteur de code barre pour qu'il fasse un <TAB> après la lecture d'un code.
+Vous devez configurer le lecteur de code barre pour qu'il fasse un TAB (tabulation) après la lecture d'un code.
 1. Clone the repo
 ``` bash
 https://github.com/Boudha25/Bibliotheque.git
