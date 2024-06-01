@@ -6,6 +6,11 @@ import sqlite3
 
 class Database:
     def __init__(self):
+        self.livre_select = None
+        self.label_info_isbn = None
+        self.label_info_auteur = None
+        self.label_info_titre = None
+        self.label_info_message = None
         self.conn = sqlite3.connect('biblio.db', detect_types=sqlite3.PARSE_DECLTYPES)
         self.cur = self.conn.cursor()
         self.cur.execute("""CREATE TABLE IF NOT EXISTS livre(id_livre INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -29,7 +34,7 @@ class Database:
         # Attribut de la méthode compteur_de_copies.
         self.numero_de_copie = None
 
-    def fetch_livre(self) -> object:
+    def fetch_livre(self):
         self.cur.execute("SELECT id_livre, ISBN, Titre, Auteur, Status, NbPage FROM livre")
         rows_livre = self.cur.fetchall()
         return rows_livre
@@ -139,6 +144,7 @@ class Database:
         return populaire
 
     def validation(self):
+        print("Validation")
         if self.cur.rowcount > 0:
             self.label_info_message.set("le livre à bien été enregistré")
             self.label_info_titre.set("")  # Efface la variable du champ Entry.
