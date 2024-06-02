@@ -287,12 +287,12 @@ class MenuBar(tk.Menu, Database):
 
     def variable_manuel(self):
         # On amasse les données du livre.
-        self.titre = self.label_info_titre.get()
-        self.resume = "Indisponible"
-        self.auteur = self.label_info_auteur.get()
-        self.nbPage = 000
-        self.langage = "fr"
-        self.url = "inconnu"
+        self.titre.set(self.label_info_titre.get())
+        self.resume.set("Indisponible")
+        self.auteur.set(self.label_info_auteur.get())
+        self.nbPage.set(000)
+        self.langage.set("fr")
+        self.url.set("inconnu")
         # Enregistre la date du jour.
         self.dateInscription = self.aujourdhui.strftime("%Y-%m-%d")
         self.status = 0  # Met le livre disponible.
@@ -304,9 +304,11 @@ class MenuBar(tk.Menu, Database):
         self.base_api_link = "https://www.googleapis.com/books/v1/volumes?q=isbn:"
 
         # On met le code isbn dans une variable.
-        self.isbn = self.label_info_isbn.get()
+        code_isbn = self.label_info_isbn.get()
+        # La variable est un integer.
+        self.isbn.set(int(code_isbn))
 
-        with urllib.request.urlopen(self.base_api_link + str(self.isbn)) as f:
+        with urllib.request.urlopen(self.base_api_link + str(self.isbn.get())) as f:
             text = f.read()
 
         # Vérifie si les données de la BD Google sont valides.
@@ -326,36 +328,36 @@ class MenuBar(tk.Menu, Database):
 
             # déclaration des variables et vérifie si elles ont du contenu.
             try:
-                self.titre = (volume_info["volumeInfo"]["title"])
+                self.titre.set((volume_info["volumeInfo"]["title"]))
             except KeyError:
-                self.titre = "Titre Inconnu"
+                self.titre.set("Titre Inconnu")
 
             try:
-                self.resume = (volume_info["volumeInfo"]["description"])
+                self.resume.set((volume_info["volumeInfo"]["description"]))
             except KeyError:
-                self.resume = "Indisponible"
+                self.resume.set("Indisponible")
 
             try:
                 auteurs = (volume_info["volumeInfo"]["authors"])  # Donne une list.
                 auteur_list = [str(a) for a in auteurs]  # Sérialise la liste par caractère.
-                self.auteur = (",".join(auteur_list))  # Remet la liste en string.
+                self.auteur.set((",".join(auteur_list)))  # Remet la liste en string.
             except KeyError:
-                self.auteur = "Auteur Inconnu"
+                self.auteur.set("Auteur Inconnu")
 
             try:
-                self.nbPage = (volume_info["volumeInfo"]["pageCount"])
+                self.nbPage.set((volume_info["volumeInfo"]["pageCount"]))
             except KeyError:
-                self.nbPage = 000
+                self.nbPage.set(000)
 
             try:
-                self.langage = (volume_info["volumeInfo"]["language"])
+                self.langage.set((volume_info["volumeInfo"]["language"]))
             except KeyError:
-                self.langage = "NA"
+                self.langage.set("NA")
 
-            self.label_info_titre.set(self.titre)
-            self.label_info_auteur.set(self.auteur)
-            self.url = "https://books.google.com/books/content?id=%s&printsec=" \
-                       "frontcover&img=1&zoom=5&edge=curl&source=gbs_api" % identifiant_livre
+            self.label_info_titre.set(self.titre.get())
+            self.label_info_auteur.set(self.auteur.get())
+            self.url.set("https://books.google.com/books/content?id=%s&printsec= \
+                       frontcover&img=1&zoom=5&edge=curl&source=gbs_api" % identifiant_livre)
             self.dateInscription = self.aujourdhui.strftime("%Y-%m-%d")
             self.status = 0  # Met le livre disponible.
             return self.titre, self.resume, self.auteur, self.nbPage, self.langage, \
@@ -363,7 +365,7 @@ class MenuBar(tk.Menu, Database):
 
     def set_label(self, _event=None):
         # Méthode qui change le message lorsqu'on clique dans le champ info titre.
-        if self.provenance_variable:  # Si la variable est à True. (provenance manuel)
+        if self.provenance_variable:  # Si la variable est à True. (provenance manuelle)
             self.label_info_message.set("Remplir les champs \nTitre, Auteur et Isbn")
             self.label_info_titre.set("")
             self.label_info_auteur.set("")
@@ -381,18 +383,18 @@ class MenuBar(tk.Menu, Database):
         # Méthode qui sert à insérer les données dans la Bd.
         try:
             # On met le code isbn dans une variable et on vérifie que c'est bien des chiffres.
-            self.isbn = int(self.label_info_isbn.get())
+            self.isbn.set(int(self.label_info_isbn.get()))
         except ValueError:
             # Si le code contient autre chose que des chiffres.
             self.erreur()
 
-        # On utilise la méthode valider_champ_saisie pour s'assurer que le Isbn a 10 ou 13 chiffres.
-        isbn_a_valider = self.label_info_isbn.get()
+        # On utilise la méthode valider_champ_saisie pour s'assurer que le Isbn à 10 ou 13 chiffres.
+        isbn_a_valider = self.isbn.get()
         valide = self.valider_champ_saisie(isbn_a_valider)
         if valide:
             # On fait une requête pour vérifier si le livre existe dans la Bd local
             # à l'aide de la méthode recherche de la classe Database.
-            result = Database.recherche(self, self.isbn, )
+            result = Database.recherche(self, isbn_a_valider)
             if result:
                 self.label_info_message.set("Le livre existe déjà\n dans la base de donnée.")
                 # Lance la méthode qui change le titre pour enregistrer les doublons.
@@ -403,16 +405,19 @@ class MenuBar(tk.Menu, Database):
             else:
                 # Les variables ont été récupérés automatiquement avec un Bind sur la touche <TAB> du scanneur.
                 # On récupère le Titre une autre fois, car s'il a été modifié, on enregistre le bon.
-                self.titre = self.label_info_titre.get()
+                self.titre.set(self.label_info_titre.get())
+
             # C'est ici qu'on envoie les données à la méthode insert de la classe Database.
-            self.titre = self.label_info_titre.get()
-            Database.insert(self, self.isbn, self.titre, self.resume, self.auteur, self.nbPage,
-                            self.langage, self.url, self.dateInscription, self.status)
+            self.titre.set(self.label_info_titre.get())
+
+            Database.insert(self, self.isbn.get(), self.titre.get(), self.resume.get(), self.auteur.get(), self.nbPage.get(),
+                            self.langage.get(), self.url.get(), self.dateInscription, self.status)
+
             # Si le livre est un doublon.
-            if "copie" in self.titre:
+            if "copie" in self.titre.get():
                 if self.cur.rowcount > 0:
                     self.label_info_message.set("Identifier ce livre comme étant: \n{0}"
-                                                "\nle livre à bien été enregistré".format(self.titre))
+                                                "\nle livre à bien été enregistré".format(self.titre.get()))
                 # On vérifie s'il y a eu au moins 1 ligne d'enregistré dans la base de donnée.
             else:
                 Database.validation(self)
@@ -421,7 +426,7 @@ class MenuBar(tk.Menu, Database):
 
     @staticmethod
     def valider_champ_saisie(isbn_a_valider):
-        # On vérifie que le champ Isbn a seulement 10 ou 13 chiffres.
+        # On vérifie que le champ Isbn à seulement 10 ou 13 chiffres.
         str_saisie = str(isbn_a_valider)  # Transforme l'"int" en string pour compter les caractères.
         longueur = len(str_saisie)  # enregistre le nombre de caractères entré dans une variable
         if longueur == 10 or longueur == 13:  # Si le "ISBN" saisie contient 10 ou 13 caractères.
@@ -513,7 +518,8 @@ class MenuBar(tk.Menu, Database):
         self.fenetre4.destroy()
 
     def quit(self):
-        quit()
+        self.destroy()
+        quit(self)
 
     # Fenetre À propos.
     @staticmethod
@@ -527,7 +533,7 @@ class MenuBar(tk.Menu, Database):
                          "Vous pouvez ensuite savoir qui possède chaque livre.\n"
                          "Vous pouvez savoir quel livre est le plus populaire.\n\n"
 
-                         "Auteur: Stéphane April. Version 2.0\n"
+                         "Auteur: Stéphane April. Version 2.2\n"
                          "2023")
 
     def liste(self):
@@ -634,7 +640,7 @@ class MenuBar(tk.Menu, Database):
             listBox.move(item[1], '', ix)
 
         # Switch the heading, so it will sort in the opposite direction
-        listBox.heading(col, command=lambda col=col: self.sortby(listBox, col, int(not descending)))
+        listBox.heading(col, command=lambda colonne=col: self.sortby(listBox, col, int(not descending)))
 
     def liste_livres(self):
         # Affiche la liste de tous les livres de la Bd dans la fenêtre3.
@@ -644,6 +650,9 @@ class MenuBar(tk.Menu, Database):
 
         # Requête dans la base de donnée.
         records = Database.fetch_livre(self)
+
+        # Tri des livres par titre
+        records.sort(key=lambda x: x[2])  # Tri par le titre, index 2 dans chaque tuple
 
         # Définition des entêtes de colonnes.
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Status',
@@ -664,6 +673,9 @@ class MenuBar(tk.Menu, Database):
 
         # Requête dans la base de donnée.
         records_emprunt = Database.emprunt_livre(self)
+
+        # Tri des livres empruntés par titre
+        records_emprunt.sort(key=lambda x: x[2])  # Tri par le titre, index 2 dans chaque tuple
 
         # Définition des entêtes de colonnes.
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Status',
@@ -686,14 +698,17 @@ class MenuBar(tk.Menu, Database):
         # Requête dans la base de donnée.
         Livre_populaire = Database.livre_populaire(self)
 
+        # Tri des livres par popularité (total d'emprunts)
+        Livre_populaire.sort(key=lambda x: x[5], reverse=True)  # Tri par le total, index 5 dans chaque tuple
+
         # Définition des entêtes de colonnes.
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Nb pages',
                             'Total', '', '')
         # Place les éléments dans le tableau(listbox).
-        for i, (self.id_livre, self.isbn, self.titre, self.auteur, self.nbPage, self.total) \
+        for i, (self.id_livre, self.isbn, self.titre, self.auteur, self.nbPage, total) \
                 in enumerate(Livre_populaire, start=1):
             self.listBox.insert("", "end", values=(self.id_livre, self.isbn, self.titre, self.auteur,
-                                                   self.nbPage, self.total))
+                                                   self.nbPage, total))
         # Ajout d'une barre de défilement.
         self.scrollbar()
 
@@ -704,6 +719,9 @@ class MenuBar(tk.Menu, Database):
         self.efface_tableau()
 
         livres_en_retard = Database.livre_retard(self)
+
+        # Tri des livres en retard par titre
+        livres_en_retard.sort(key=lambda x: x[2])  # Tri par le titre, index 2 dans chaque tuple
 
         # Définition des entêtes de colonnes.
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Status',
@@ -752,11 +770,11 @@ class MenuBar(tk.Menu, Database):
             self.id_livre = tk.IntVar(self.fenetre6, value=row[0])
             self.isbn = tk.IntVar(self.fenetre6, value=row[1])
             self.titre = tk.StringVar(self.fenetre6, value=row[2])
-            self.resume = row[3]
+            self.resume.set(row[3])
             self.auteur = tk.StringVar(self.fenetre6, value=row[4])
             self.nbPage = tk.IntVar(self.fenetre6, value=row[5])
             self.langage = tk.StringVar(self.fenetre6, value=row[6])
-            self.url = row[7]  # Attribut servant pour décoder l'image du livre.
+            self.url.set(row[7])  # Attribut servant pour décoder l'image du livre.
             self.dateInscription = tk.StringVar(self.fenetre6, value=row[8])
             self.status = tk.IntVar(self.fenetre6, value=row[9])
 
@@ -783,16 +801,16 @@ class MenuBar(tk.Menu, Database):
         variable_dateInscription = tk.Label(self.fenetre6, bd=1, textvariable=self.dateInscription,
                                             font="Arial 20", bg='gray93', anchor='w', width=40)
         entry_status = tk.Entry(self.fenetre6, bd=1, textvariable=self.status, font="Arial 20", width=46)
-        texte_resume.insert(tk.END, self.resume)  # Création de la case texte et insertion du texte.
+        texte_resume.insert(tk.END, self.resume.get())  # Création de la case texte et insertion du texte.
         ys = ttk.Scrollbar(self.fenetre6, orient='vertical', command=texte_resume.yview)
         ys.grid(column=2, row=5, sticky='ns')
 
         # Affichage de l'image du livre
-        if self.url == 'inconnu':
+        if self.url.get() == 'inconnu':
             self.label_image = tk.Label(self.fenetre6, font='Arial 20 bold', text='Image inconnue')
-        elif self.url is not None:
-            if 'http' in self.url:  # Si le lien contient http, sinon affiche pas d'image.
-                u = urlopen(self.url)
+        elif self.url.get() is not None:
+            if 'http' in self.url.get():  # Si le lien contient http, sinon affiche pas d'image.
+                u = urlopen(self.url.get())
                 raw_data = u.read()
                 u.close()
                 photo = ImageTk.PhotoImage(data=raw_data)

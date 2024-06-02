@@ -6,6 +6,11 @@ import sqlite3
 
 class Database:
     def __init__(self):
+        self.livre_select = None
+        self.label_info_isbn = None
+        self.label_info_auteur = None
+        self.label_info_titre = None
+        self.label_info_message = None
         self.conn = sqlite3.connect('biblio.db', detect_types=sqlite3.PARSE_DECLTYPES)
         self.cur = self.conn.cursor()
         self.cur.execute("""CREATE TABLE IF NOT EXISTS livre(id_livre INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -29,7 +34,7 @@ class Database:
         # Attribut de la méthode compteur_de_copies.
         self.numero_de_copie = None
 
-    def fetch_livre(self) -> object:
+    def fetch_livre(self):
         self.cur.execute("SELECT id_livre, ISBN, Titre, Auteur, Status, NbPage FROM livre")
         rows_livre = self.cur.fetchall()
         return rows_livre
@@ -72,6 +77,14 @@ class Database:
 
         else:
             self.conn.rollback()
+
+    @staticmethod
+    def valider_champ_saisie(isbn_a_valider):
+        # On vérifie que le champ Isbn à seulement 10 ou 13 chiffres.
+        str_saisie = str(isbn_a_valider)  # Transforme l'"int" en string pour compter les caractères.
+        longueur = len(str_saisie)  # enregistre le nombre de caractères entré dans une variable
+        if longueur == 10 or longueur == 13:  # Si le "ISBN" saisie contient 10 ou 13 caractères.
+            return True  # Return True pour que la méthode "def insertion" accepte les données.
 
     def emprunt_livre(self):
         self.cur.execute("""SELECT livre.id_livre, livre.ISBN, livre.Titre, livre.Auteur, livre.Status,
@@ -149,11 +162,16 @@ class Database:
 
     def recherche(self, isbn):
         sql = "SELECT * FROM livre WHERE ISBN = ? ORDER BY id_livre"
-        # Execute la requête SQL
-        self.cur.execute(sql, (isbn,))
-        # Fetch all the rows in a list of lists.
-        results = self.cur.fetchall()
-        return results
+
+        try:
+            # Execute la requête SQL
+            self.cur.execute(sql, (isbn,))
+            # Fetch all the rows in a list of lists.
+            results = self.cur.fetchall()
+            return results
+        except Exception as e:
+            print("Erreur lors de l'exécution de la requête de recherche:", e)
+            return None
 
     def compteur_de_copies(self, isbn):
         # requête pour vérifier combien de fois le livre existe dans la Bd local.

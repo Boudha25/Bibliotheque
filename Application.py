@@ -3,7 +3,7 @@
 # -*- coding: latin-1 -*-
 ##############################
 #   Auteur: Stéphane April   #
-#   Juin 2023 ver.2.0    #
+#   Avril 2024 ver.2.2    #
 ##############################
 
 import datetime
@@ -33,7 +33,7 @@ class Application(tk.Tk, Database):
         self.zone_dessin.create_image(1450, 10, anchor=NE, image=self.logo)
         self.zone_dessin.pack(side=TOP, fill=NONE, expand=NO)
 
-        # Création du bouton emprunter.
+        # Création du bouton "emprunter".
         self.bouton_emprunter = tk.Button(self,
                                           text="Emprunter",
                                           font='Arial 25 bold',
@@ -163,7 +163,7 @@ class Application(tk.Tk, Database):
             # S'il existe plusieurs exemplaires, on demande de quel exemplaire il s'agit.
             if copie > 1:
                 # Récupère le choix de l'usager.
-                copie_select = self.quelle_copie(isbn)
+                copie_select = self.quelle_copie()
                 # Sélectionne le titre dans la liste de tuple des résultats.
                 tuple_livre_a_emprunter = existance_du_livre[copie_select]
                 # met les données dans des variables pour afficher les informations du livre.
@@ -202,7 +202,7 @@ class Application(tk.Tk, Database):
             self.scan_isbn.delete(0, END)  # Efface les champs Entry
             self.no_classe.delete(0, END)
 
-    def quelle_copie(self, isbn):
+    def quelle_copie(self):
         # Demande à l'utilisateur d'inscrire le # de copie à emprunter.
         copieEmprunter = simpledialog.askinteger("Attention?",
                                                  "Ce livre contient plusieurs exemplaires\n"
@@ -243,7 +243,7 @@ class Application(tk.Tk, Database):
         if self.verification_numero_eleve():
             id_eleve = self.verification_numero_eleve()
         else:
-            self.erreur_no_classe()
+            return self.erreur_no_classe()
 
         # Récupération des informations pour ajout dans la BD.
         id_livre = self.id_livre.get()
