@@ -78,6 +78,14 @@ class Database:
         else:
             self.conn.rollback()
 
+    @staticmethod
+    def valider_champ_saisie(isbn_a_valider):
+        # On vérifie que le champ Isbn à seulement 10 ou 13 chiffres.
+        str_saisie = str(isbn_a_valider)  # Transforme l'"int" en string pour compter les caractères.
+        longueur = len(str_saisie)  # enregistre le nombre de caractères entré dans une variable
+        if longueur == 10 or longueur == 13:  # Si le "ISBN" saisie contient 10 ou 13 caractères.
+            return True  # Return True pour que la méthode "def insertion" accepte les données.
+
     def emprunt_livre(self):
         self.cur.execute("""SELECT livre.id_livre, livre.ISBN, livre.Titre, livre.Auteur, livre.Status,
                         MAX(emprunt.id_emprunt), emprunt.Id_eleve, emprunt.Date_emprunt, emprunt.Date_retour
@@ -144,7 +152,6 @@ class Database:
         return populaire
 
     def validation(self):
-        print("Validation")
         if self.cur.rowcount > 0:
             self.label_info_message.set("le livre à bien été enregistré")
             self.label_info_titre.set("")  # Efface la variable du champ Entry.
@@ -155,11 +162,16 @@ class Database:
 
     def recherche(self, isbn):
         sql = "SELECT * FROM livre WHERE ISBN = ? ORDER BY id_livre"
-        # Execute la requête SQL
-        self.cur.execute(sql, (isbn,))
-        # Fetch all the rows in a list of lists.
-        results = self.cur.fetchall()
-        return results
+
+        try:
+            # Execute la requête SQL
+            self.cur.execute(sql, (isbn,))
+            # Fetch all the rows in a list of lists.
+            results = self.cur.fetchall()
+            return results
+        except Exception as e:
+            print("Erreur lors de l'exécution de la requête de recherche:", e)
+            return None
 
     def compteur_de_copies(self, isbn):
         # requête pour vérifier combien de fois le livre existe dans la Bd local.
