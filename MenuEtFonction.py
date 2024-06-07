@@ -407,8 +407,9 @@ class MenuBar(tk.Menu, Database):
             # C'est ici qu'on envoie les données à la méthode insert de la classe Database.
             self.titre.set(self.label_info_titre.get())
 
-            Database.insert(self, self.isbn.get(), self.titre.get(), self.resume.get(), self.auteur.get(), self.nbPage.get(),
-                            self.langage.get(), self.url.get(), self.dateInscription, self.status)
+            Database.insert(self, self.isbn.get(), self.titre.get(), self.resume.get(), self.auteur.get(),
+                            self.nbPage.get(), self.langage.get(), self.url.get(), self.dateInscription,
+                            self.status)
 
             # Si le livre est un doublon.
             if "copie" in self.titre.get():
@@ -814,6 +815,7 @@ class MenuBar(tk.Menu, Database):
                 self.label_image = tk.Label(self.fenetre6, image=photo)
                 self.label_image.image = photo
             except Exception as e:
+                print("Erreur lors de la recherche d'image dans l'URL", e)
                 self.label_image = tk.Label(self.fenetre6, font='Arial 20 bold',
                                             text='Erreur de chargement de l\'image')
         else:
