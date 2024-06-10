@@ -296,19 +296,14 @@ class MenuBar(tk.Menu, Database):
         # Enregistre la date du jour.
         self.dateInscription = self.aujourdhui.strftime("%Y-%m-%d")
         self.status = 0  # Met le livre disponible.
-        return self.titre, self.resume, self.auteur, self.nbPage, self.langage, self.url, \
-            self.dateInscription, self.status, self.provenance_variable
+        return (self.titre.get(), self.resume.get(), self.auteur.get(), self.nbPage.get(), self.langage.get(),
+                self.url.get(), self.dateInscription, self.status, self.provenance_variable)
 
     def variable_automatique(self):
         # Utilisation de la base de donnée Google Book.
         self.base_api_link = "https://www.googleapis.com/books/v1/volumes?q=isbn:"
 
-        # On met le code isbn dans une variable.
-        code_isbn = self.label_info_isbn.get()
-        # La variable est un integer.
-        self.isbn.set(int(code_isbn))
-
-        with urllib.request.urlopen(self.base_api_link + str(self.isbn.get())) as f:
+        with urllib.request.urlopen(self.base_api_link + (self.label_info_isbn.get())) as f:
             text = f.read()
 
         # Vérifie si les données de la BD Google sont valides.
@@ -360,8 +355,9 @@ class MenuBar(tk.Menu, Database):
                        frontcover&img=1&zoom=5&edge=curl&source=gbs_api" % identifiant_livre)
             self.dateInscription = self.aujourdhui.strftime("%Y-%m-%d")
             self.status = 0  # Met le livre disponible.
-            return self.titre, self.resume, self.auteur, self.nbPage, self.langage, \
-                self.url, self.dateInscription, self.status, self.provenance_variable
+            return (self.titre.get(), self.resume.get(), self.auteur.get(), self.nbPage.get(),
+                    self.langage.get(), self.url.get(), self.dateInscription, self.status,
+                    self.provenance_variable)
 
     def set_label(self, _event=None):
         # Méthode qui change le message lorsqu'on clique dans le champ info titre.
@@ -387,6 +383,7 @@ class MenuBar(tk.Menu, Database):
         except ValueError:
             # Si le code contient autre chose que des chiffres.
             self.erreur()
+            return  # Ajouté pour arrêter l'exécution en cas d'erreur
 
         # On utilise la méthode valider_champ_saisie pour s'assurer que le Isbn à 10 ou 13 chiffres.
         isbn_a_valider = self.isbn.get()
@@ -410,8 +407,9 @@ class MenuBar(tk.Menu, Database):
             # C'est ici qu'on envoie les données à la méthode insert de la classe Database.
             self.titre.set(self.label_info_titre.get())
 
-            Database.insert(self, self.isbn.get(), self.titre.get(), self.resume.get(), self.auteur.get(), self.nbPage.get(),
-                            self.langage.get(), self.url.get(), self.dateInscription, self.status)
+            Database.insert(self, self.isbn.get(), self.titre.get(), self.resume.get(), self.auteur.get(),
+                            self.nbPage.get(), self.langage.get(), self.url.get(), self.dateInscription,
+                            self.status)
 
             # Si le livre est un doublon.
             if "copie" in self.titre.get():
@@ -438,7 +436,7 @@ class MenuBar(tk.Menu, Database):
 
         if response == 'yes':
             # Interroge la base de donnée pour savoir il y a combien de copie existante.
-            copie = Database.compteur_de_copies(self, self.isbn, )
+            copie = Database.compteur_de_copies(self, self.isbn.get(), )
             # Crée un attribut pour formater le titre avec le numéro de copie.
             titre = self.label_info_titre.get()
             titreDoublon = titre + " copie #{0}".format(copie)
@@ -615,10 +613,10 @@ class MenuBar(tk.Menu, Database):
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Status',
                             'Nb Page', '', '')
         # Place les éléments dans le tableau(listbox).
-        for i, (self.id_livre, self.isbn, self.titre, self.auteur, self.status, self.nbPage) \
+        for i, (self.id_livre, isbn, titre, auteur, status, nbPage) \
                 in enumerate(records, start=1):
-            self.listBox.insert("", "end", values=(self.id_livre, self.isbn, self.titre,
-                                                   self.auteur, self.status, self.nbPage))
+            self.listBox.insert("", "end", values=(self.id_livre, isbn, titre,
+                                                   auteur, status, nbPage))
         # Ajout d'une barre de défilement.
         self.scrollbar()
 
@@ -658,10 +656,10 @@ class MenuBar(tk.Menu, Database):
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Status',
                             'Nb Page', '', '')
         # Place les éléments dans le tableau(listbox).
-        for i, (self.id_livre, self.isbn, self.titre, self.auteur, self.status, self.nbPage) \
+        for i, (id_livre, isbn, titre, auteur, status, nbPage) \
                 in enumerate(records, start=1):
-            self.listBox.insert("", "end", values=(self.id_livre, self.isbn, self.titre,
-                                                   self.auteur, self.status, self.nbPage))
+            self.listBox.insert("", "end", values=(id_livre, isbn, titre,
+                                                   auteur, status, nbPage))
         # Ajout d'une barre de défilement.
         self.scrollbar()
 
@@ -681,11 +679,11 @@ class MenuBar(tk.Menu, Database):
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Status',
                             'Id élève', 'Date emprunt', 'Date retour')
         # Place les éléments dans le tableau(listbox).
-        for i, (self.id_livre, self.isbn, self.titre, self.auteur, self.status,
-                self.id_emprunt, self.id_eleve, self.date_emprunt, self.date_retour) \
+        for i, (id_livre, isbn, titre, auteur, status,
+                id_emprunt, id_eleve, date_emprunt, date_retour) \
                 in enumerate(records_emprunt, start=1):
-            self.listBox.insert("", "end", values=(self.id_livre, self.isbn, self.titre, self.auteur,
-                                                   self.status, self.id_eleve, self.date_emprunt, self.date_retour))
+            self.listBox.insert("", "end", values=(id_livre, isbn, titre, auteur,
+                                                   status, id_eleve, date_emprunt, date_retour))
         # Ajout d'une barre de défilement.
         self.scrollbar()
 
@@ -705,10 +703,10 @@ class MenuBar(tk.Menu, Database):
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Nb pages',
                             'Total', '', '')
         # Place les éléments dans le tableau(listbox).
-        for i, (self.id_livre, self.isbn, self.titre, self.auteur, self.nbPage, total) \
+        for i, (id_livre, isbn, titre, auteur, nbPage, total) \
                 in enumerate(Livre_populaire, start=1):
-            self.listBox.insert("", "end", values=(self.id_livre, self.isbn, self.titre, self.auteur,
-                                                   self.nbPage, total))
+            self.listBox.insert("", "end", values=(id_livre, isbn, titre, auteur,
+                                                   nbPage, total))
         # Ajout d'une barre de défilement.
         self.scrollbar()
 
@@ -727,11 +725,11 @@ class MenuBar(tk.Menu, Database):
         self.titre_colonnes('Id livre', 'ISBN', 'Titre', 'Auteur', 'Status',
                             'Id élève', 'Date emprunt', 'Date retour')
         # Place les éléments dans le tableau(listbox).
-        for i, (self.id_livre, self.isbn, self.titre, self.auteur, self.status,
-                self.id_emprunt, self.id_eleve, self.date_emprunt, self.date_retour) \
+        for i, (id_livre, isbn, titre, auteur, status,
+                id_emprunt, id_eleve, date_emprunt, date_retour) \
                 in enumerate(livres_en_retard, start=1):
-            self.listBox.insert("", "end", values=(self.id_livre, self.isbn, self.titre, self.auteur,
-                                                   self.status, self.id_eleve, self.date_emprunt, self.date_retour))
+            self.listBox.insert("", "end", values=(id_livre, isbn, titre, auteur,
+                                                   status, id_eleve, date_emprunt, date_retour))
         # Ajout d'une barre de défilement.
         self.scrollbar()
 
@@ -808,14 +806,18 @@ class MenuBar(tk.Menu, Database):
         # Affichage de l'image du livre
         if self.url.get() == 'inconnu':
             self.label_image = tk.Label(self.fenetre6, font='Arial 20 bold', text='Image inconnue')
-        elif self.url.get() is not None:
-            if 'http' in self.url.get():  # Si le lien contient http, sinon affiche pas d'image.
+        elif self.url.get() and 'http' in self.url.get():
+            try:
                 u = urlopen(self.url.get())
                 raw_data = u.read()
                 u.close()
                 photo = ImageTk.PhotoImage(data=raw_data)
                 self.label_image = tk.Label(self.fenetre6, image=photo)
                 self.label_image.image = photo
+            except Exception as e:
+                print("Erreur lors de la recherche d'image dans l'URL", e)
+                self.label_image = tk.Label(self.fenetre6, font='Arial 20 bold',
+                                            text='Erreur de chargement de l\'image')
         else:
             self.label_image = tk.Label(self.fenetre6, font='Arial 20 bold', text='Pas d\'image')
 
